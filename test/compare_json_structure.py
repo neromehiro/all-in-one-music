@@ -99,9 +99,14 @@ def compare_structure(obj1: Any, obj2: Any, path: str = "") -> List[Tuple[str, s
     return differences
 
 def main():
-    # ファイルパス
-    success_path = Path("/Users/neromehiro/hiro folder/my_Works/programing/all-in-one-music/test/success.json")
-    fail_path = Path("/Users/neromehiro/hiro folder/my_Works/programing/all-in-one-music/ui/static/struct/0461_103additionalmemory.json")
+    # コマンドライン引数からファイルパスを取得
+    if len(sys.argv) >= 3:
+        success_path = Path(sys.argv[1])
+        fail_path = Path(sys.argv[2])
+    else:
+        # デフォルトのファイルパス
+        success_path = Path("/Users/neromehiro/hiro folder/my_Works/programing/all-in-one-music/test/success.json")
+        fail_path = Path("/Users/neromehiro/hiro folder/my_Works/programing/all-in-one-music/ui/static/struct/0461_103additionalmemory.json")
     
     print("=" * 80)
     print("JSONファイル構造比較ツール")
