@@ -2,6 +2,7 @@
 """
 シンプルな音楽分析ツール
 音声ファイルからJSON（分析結果）とStem音声を出力
+Music-Dissector形式への自動変換機能付き
 """
 
 import json
@@ -9,6 +10,10 @@ import sys
 from pathlib import Path
 from typing import Optional, Dict, Union
 import logging
+
+# convert_to_music_dissectorをインポート
+sys.path.append(str(Path(__file__).parent.parent))
+from convert_to_music_dissector import convert_to_music_dissector
 
 # ログ設定
 logging.basicConfig(
@@ -50,6 +55,7 @@ class SimpleAnalyzer:
     def analyze(self, audio_path: Union[str, Path]) -> Optional[Dict]:
         """
         音声ファイルを分析してJSONとStem音声を出力
+        Music-Dissector形式への変換も自動実行
         
         Args:
             audio_path: 音声ファイルのパス
@@ -143,6 +149,16 @@ class SimpleAnalyzer:
                 duration = seg.end - seg.start
                 logger.info(f"  {seg.label}: {seg.start:.1f}s - {seg.end:.1f}s ({duration:.1f}s)")
             
+            # Music-Dissector形式への変換
+            logger.info(f"\n🔄 Music-Dissector形式への変換開始...")
+            try:
+                music_dissector_path = convert_to_music_dissector(json_output_path)
+                logger.info(f"✅ Music-Dissector形式への変換完了")
+            except Exception as e:
+                logger.error(f"❌ Music-Dissector形式への変換エラー: {e}")
+                import traceback
+                traceback.print_exc()
+            
             return analysis_data
             
         except Exception as e:
@@ -210,11 +226,23 @@ def main():
             logger.info(f"  {analyzer.output_dir}/")
             logger.info(f"  └── [曲名]/")
             logger.info(f"      ├── [曲名].json")
-            logger.info(f"      └── stems/")
-            logger.info(f"          ├── bass.wav")
-            logger.info(f"          ├── drums.wav")
-            logger.info(f"          ├── other.wav")
-            logger.info(f"          └── vocals.wav")
+            logger.info(f"      ├── stems/")
+            logger.info(f"      │   ├── bass.wav")
+            logger.info(f"      │   ├── drums.wav")
+            logger.info(f"      │   ├── other.wav")
+            logger.info(f"      │   └── vocals.wav")
+            logger.info(f"      └── music-dissector/")
+            logger.info(f"          ├── data/")
+            logger.info(f"          │   ├── [曲名].json.gz")
+            logger.info(f"          │   └── [曲名].json")
+            logger.info(f"          ├── mixdown/")
+            logger.info(f"          │   └── [曲名].mp3")
+            logger.info(f"          └── demixed/")
+            logger.info(f"              └── [曲名]/")
+            logger.info(f"                  ├── bass.mp3")
+            logger.info(f"                  ├── drum.mp3")
+            logger.info(f"                  ├── other.mp3")
+            logger.info(f"                  └── vocal.mp3")
     else:
         # 複数ファイル
         results = analyzer.batch_analyze(args.audio_files)
@@ -225,11 +253,23 @@ def main():
             logger.info(f"  {analyzer.output_dir}/")
             logger.info(f"  └── [曲名]/")
             logger.info(f"      ├── [曲名].json")
-            logger.info(f"      └── stems/")
-            logger.info(f"          ├── bass.wav")
-            logger.info(f"          ├── drums.wav")
-            logger.info(f"          ├── other.wav")
-            logger.info(f"          └── vocals.wav")
+            logger.info(f"      ├── stems/")
+            logger.info(f"      │   ├── bass.wav")
+            logger.info(f"      │   ├── drums.wav")
+            logger.info(f"      │   ├── other.wav")
+            logger.info(f"      │   └── vocals.wav")
+            logger.info(f"      └── music-dissector/")
+            logger.info(f"          ├── data/")
+            logger.info(f"          │   ├── [曲名].json.gz")
+            logger.info(f"          │   └── [曲名].json")
+            logger.info(f"          ├── mixdown/")
+            logger.info(f"          │   └── [曲名].mp3")
+            logger.info(f"          └── demixed/")
+            logger.info(f"              └── [曲名]/")
+            logger.info(f"                  ├── bass.mp3")
+            logger.info(f"                  ├── drum.mp3")
+            logger.info(f"                  ├── other.mp3")
+            logger.info(f"                  └── vocal.mp3")
 
 
 if __name__ == "__main__":
