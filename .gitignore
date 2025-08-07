@@ -66,5 +66,8 @@ docker-compose.override.yml
 *.pot
 *.mo
 
+*.mp3
+*.m4a
+
 # 本番環境用秘密ファイル
 *.pem
