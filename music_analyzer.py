@@ -8,6 +8,8 @@ import numpy as np
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 import logging
+import shutil
+import os
 
 # matplotlibのバックエンドを非GUI版に設定
 import matplotlib
@@ -45,6 +47,11 @@ class MusicAnalyzer:
         
         # allin1ライブラリの遅延インポート
         self._allin1 = None
+        
+        # UI同期設定
+        self.ui_dir = Path("ui")
+        self.ui_struct_dir = self.ui_dir / "static" / "struct"
+        self.ui_audio_dir = self.ui_dir / "static" / "audio"
     
     @property
     def allin1(self):
@@ -241,6 +248,143 @@ class MusicAnalyzer:
         
         logger.info(f"一括分析完了: {len(results)}/{len(audio_files)} 成功")
         return results
+    
+    def normalize_filename(self, filename: str) -> str:
+        """
+        ファイル名をMusic-Dissector用に正規化
+        
+        Args:
+            filename: 元のファイル名
+            
+        Returns:
+            正規化されたファイル名
+        """
+        # 拡張子を除去
+        base_name = Path(filename).stem
+        
+        # 特殊文字を除去・置換
+        normalized = base_name.replace(" ", "").replace("-", "").lower()
+        
+        # 数字プレフィックスを追加（存在しない場合）
+        if not normalized[:4].isdigit():
+            # ハッシュベースの4桁数字を生成
+            import hashlib
+            hash_obj = hashlib.md5(normalized.encode())
+            hash_hex = hash_obj.hexdigest()
+            prefix = str(int(hash_hex[:8], 16))[-4:].zfill(4)
+            normalized = f"{prefix}_{normalized}"
+        
+        return normalized
+    
+    def sync_to_ui(self, audio_file_path: Union[str, Path], auto_normalize: bool = True) -> bool:
+        """
+        分析結果をUIディレクトリに同期
+        
+        Args:
+            audio_file_path: 元の音楽ファイルパス
+            auto_normalize: ファイル名を自動正規化するか
+            
+        Returns:
+            同期成功時True
+        """
+        audio_path = Path(audio_file_path)
+        
+        if not self.ui_dir.exists():
+            logger.warning("UIディレクトリが見つかりません。同期をスキップします。")
+            return False
+        
+        # UIディレクトリを作成
+        self.ui_struct_dir.mkdir(parents=True, exist_ok=True)
+        self.ui_audio_dir.mkdir(parents=True, exist_ok=True)
+        
+        try:
+            # ファイル名の正規化
+            if auto_normalize:
+                base_name = self.normalize_filename(audio_path.name)
+            else:
+                base_name = audio_path.stem
+            
+            # JSONファイルの同期
+            source_json = self.results_dir / f"{audio_path.stem}.json"
+            target_json = self.ui_struct_dir / f"{base_name}.json"
+            
+            if source_json.exists():
+                if target_json.exists():
+                    target_json.unlink()  # 既存ファイルを削除
+                
+                # シンボリックリンクまたはコピー
+                try:
+                    # 相対パスでシンボリックリンクを作成
+                    relative_path = os.path.relpath(source_json, self.ui_struct_dir)
+                    target_json.symlink_to(relative_path)
+                    logger.info(f"JSONファイルをリンク: {target_json.name}")
+                except OSError:
+                    # シンボリックリンクが失敗した場合はコピー
+                    shutil.copy2(source_json, target_json)
+                    logger.info(f"JSONファイルをコピー: {target_json.name}")
+            
+            # 音源ファイルの同期
+            target_audio = self.ui_audio_dir / f"{base_name}{audio_path.suffix}"
+            
+            if target_audio.exists():
+                target_audio.unlink()  # 既存ファイルを削除
+            
+            try:
+                # 相対パスでシンボリックリンクを作成
+                relative_path = os.path.relpath(audio_path, self.ui_audio_dir)
+                target_audio.symlink_to(relative_path)
+                logger.info(f"音源ファイルをリンク: {target_audio.name}")
+            except OSError:
+                # シンボリックリンクが失敗した場合はコピー
+                shutil.copy2(audio_path, target_audio)
+                logger.info(f"音源ファイルをコピー: {target_audio.name}")
+            
+            logger.info(f"🎵 UI同期完了: {base_name}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"UI同期エラー: {e}")
+            return False
+    
+    def sync_all_to_ui(self) -> int:
+        """
+        全ての分析結果をUIに同期
+        
+        Returns:
+            同期されたファイル数
+        """
+        if not self.ui_dir.exists():
+            logger.warning("UIディレクトリが見つかりません。")
+            return 0
+        
+        synced_count = 0
+        
+        # 結果ディレクトリ内のJSONファイルを検索
+        for json_file in self.results_dir.glob("*.json"):
+            # 対応する音源ファイルを検索
+            base_name = json_file.stem
+            
+            # 一般的な音源ファイル拡張子で検索
+            audio_extensions = ['.mp3', '.wav', '.m4a', '.ogg', '.flac']
+            audio_file = None
+            
+            # module/sample_data/ ディレクトリで検索
+            sample_dir = Path("module/sample_data")
+            if sample_dir.exists():
+                for ext in audio_extensions:
+                    candidate = sample_dir / f"{base_name}{ext}"
+                    if candidate.exists():
+                        audio_file = candidate
+                        break
+            
+            if audio_file:
+                if self.sync_to_ui(audio_file):
+                    synced_count += 1
+            else:
+                logger.warning(f"対応する音源ファイルが見つかりません: {base_name}")
+        
+        logger.info(f"🎵 一括UI同期完了: {synced_count}件")
+        return synced_count
 
 def main():
     """テスト実行"""
@@ -310,6 +454,14 @@ def main():
                 print("❌ 新規分析失敗")
     else:
         print(f"❌ サンプルファイルが見つかりません: {sample_file}")
+    
+    # UI同期テスト
+    if analyzer.ui_dir.exists():
+        print(f"\n🔄 UI同期テスト")
+        synced_count = analyzer.sync_all_to_ui()
+        print(f"✅ UI同期完了: {synced_count}件")
+    else:
+        print(f"\n⚠️  UIディレクトリが見つかりません: {analyzer.ui_dir}")
     
     print("\n🎉 音楽分析モジュールテスト完了")
 
