@@ -2,6 +2,7 @@
 """
 音楽分析結果のJSONを正しい形式に変換するスクリプト
 UIが期待する形式（wav/navの周波数帯域分割）に対応
+id と duration フィールドを自動追加
 """
 
 import json
@@ -10,6 +11,9 @@ from pathlib import Path
 import librosa
 from typing import Dict, List, Tuple, Optional
 import logging
+import subprocess
+import shlex
+import sys
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -119,6 +123,69 @@ def process_stem_audio(stem_dir: Path, stem_names: List[str], num_frames: int = 
     
     return wav_data, nav_data
 
+def get_duration_sec(audio_path: Path) -> float:
+    """
+    音声ファイルの長さを取得（秒）
+    
+    Args:
+        audio_path: 音声ファイルのパス
+        
+    Returns:
+        音声ファイルの長さ（秒）
+    """
+    try:
+        # FFprobeを使用（高速）
+        cmd = f'ffprobe -v error -show_entries format=duration -of csv=p=0 {shlex.quote(str(audio_path))}'
+        result = subprocess.check_output(cmd, shell=True, stderr=subprocess.DEVNULL)
+        return float(result.decode().strip())
+    except (subprocess.CalledProcessError, FileNotFoundError, ValueError):
+        # FFprobeが使えない場合はlibrosaを使用
+        try:
+            logger.info(f"Using librosa to get duration for {audio_path}")
+            y, sr = librosa.load(audio_path, sr=None, mono=True)
+            return len(y) / sr
+        except Exception as e:
+            logger.warning(f"Could not get duration for {audio_path}: {e}")
+            return 0.0
+
+def find_audio_file(json_path: Path) -> Optional[Path]:
+    """
+    JSONファイルに対応する音声ファイルを探す
+    
+    Args:
+        json_path: JSONファイルのパス
+        
+    Returns:
+        見つかった音声ファイルのパス、見つからない場合はNone
+    """
+    base_name = json_path.stem
+    
+    # 元のファイル名を推定（例: 0461_103additionalmemory -> 1-03 Additional Memory）
+    original_names = []
+    if base_name == "0461_103additionalmemory":
+        original_names.append("1-03 Additional Memory")
+    original_names.append(base_name)
+    
+    # 検索パスのリスト
+    search_paths = []
+    for name in original_names:
+        for ext in ['.m4a', '.mp3', '.wav']:
+            search_paths.extend([
+                Path(f"ui/static/audio/{name}{ext}"),
+                Path(f"ui/static/audio/{base_name}{ext}"),
+                Path(f"module/sample_data/{name}{ext}"),
+                Path(f"test/benefits_analysis/results/{name}{ext}"),
+            ])
+    
+    # 最初に見つかったファイルを返す
+    for path in search_paths:
+        if path.exists():
+            logger.info(f"Found audio file: {path}")
+            return path
+    
+    logger.warning(f"No audio file found for {json_path.stem}")
+    return None
+
 def convert_segments_format(segments: List) -> List[float]:
     """
     セグメントデータを正しい形式に変換
@@ -127,10 +194,12 @@ def convert_segments_format(segments: List) -> List[float]:
     if not segments:
         return []
     
+    # 辞書形式の場合
+    if isinstance(segments[0], dict):
+        return [seg.get('start', seg.get('time', 0)) for seg in segments]
     # 2次元配列の場合
-    if isinstance(segments[0], list):
+    elif isinstance(segments[0], list):
         return [seg[0] for seg in segments]
-    
     # すでに1次元配列の場合
     return segments
 
@@ -145,7 +214,7 @@ def convert_json_to_ui_format(
     Args:
         input_json_path: 入力JSONファイルのパス
         stem_dir: stem音源のディレクトリ（オプション）
-        output_json_path: 出力JSONファイルのパス（オプション、指定しない場合は上書き）
+        output_json_path: 出力JSONファイルのパス（オプション、指定しない場合は_converted付きで保存）
         
     Returns:
         成功時True
@@ -156,6 +225,29 @@ def convert_json_to_ui_format(
             data = json.load(f)
         
         logger.info(f"Loaded JSON: {input_json_path}")
+        
+        # id フィールドを追加（ファイル名から）
+        if "id" not in data:
+            data["id"] = input_json_path.stem
+            logger.info(f"Added id: {data['id']}")
+        
+        # duration フィールドを追加（音声ファイルから）
+        if "duration" not in data or data.get("duration", 0) == 0:
+            audio_file = find_audio_file(input_json_path)
+            if audio_file:
+                duration = get_duration_sec(audio_file)
+                if duration > 0:
+                    data["duration"] = duration
+                    logger.info(f"Added duration: {duration:.2f} seconds")
+            else:
+                # セグメントやビートから推定
+                if "segments" in data and data["segments"]:
+                    last_segment = data["segments"][-1]
+                    if isinstance(last_segment, dict):
+                        data["duration"] = last_segment.get("end", 0)
+                    elif isinstance(last_segment, list) and len(last_segment) > 1:
+                        data["duration"] = last_segment[1]
+                    logger.info(f"Estimated duration from segments: {data.get('duration', 0):.2f} seconds")
         
         # stem音源のディレクトリを特定
         if stem_dir is None:
@@ -217,9 +309,9 @@ def convert_json_to_ui_format(
                 }
             }
         
-        # 出力パスの決定
+        # 出力パスの決定（_converted付きで保存）
         if output_json_path is None:
-            output_json_path = input_json_path
+            output_json_path = input_json_path.parent / f"{input_json_path.stem}_converted.json"
         
         # JSONファイルを保存
         with open(output_json_path, 'w', encoding='utf-8') as f:
@@ -260,18 +352,18 @@ def main():
         else:
             print(f"⚠️  Stem音源ディレクトリが見つかりません: {stem_dir}")
         
-        # 変換実行
+        # 変換実行（_converted付きで保存）
         print("\n🔄 変換開始...")
-        success = convert_json_to_ui_format(json_file, stem_dir)
+        output_json = json_file.parent / f"{json_file.stem}_converted.json"
+        success = convert_json_to_ui_format(json_file, stem_dir, output_json)
         
         if success:
             print("✅ 変換成功！")
+            print(f"📝 変換後ファイル: {output_json}")
             
-            # UIディレクトリにもコピー
-            ui_json = Path("ui/static/struct/0461_103additionalmemory.json")
-            import shutil
-            shutil.copy(json_file, ui_json)
-            print(f"📋 UIディレクトリにコピー: {ui_json}")
+            # 構造比較の案内
+            print("\n📊 構造を比較するには:")
+            print(f"  python test/compare_json_structure.py test/success.json {output_json}")
         else:
             print("❌ 変換失敗")
     else:
