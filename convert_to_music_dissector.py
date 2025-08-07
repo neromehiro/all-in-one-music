@@ -170,24 +170,88 @@ def convert_to_music_dissector(input_path, output_path=None):
         data = json.load(f)
     
     # 音声ファイルのパスを取得
-    audio_path = Path(data.get('file_path', data.get('file_name', '')))
+    audio_path_str = data.get('file_path', data.get('file_name', ''))
+    audio_path = Path(audio_path_str)
     
     # IDを生成（ファイル名から非英数字を除去し、数字を先頭に追加）
     file_id = re.sub(r'\W+', '', audio_path.stem.lower())
     # Music-Dissectorのフォーマットに合わせて数字を追加
     file_id = f"0000_{file_id}"
     
-    # 音声ファイルの長さを取得
-    try:
-        info = sf.info(audio_path)
-        duration = info.duration
-    except Exception as e:
-        print(f"警告: 音声ファイルの長さを取得できませんでした: {e}")
-        # beatsの最後の時刻から推定
+    # 音声ファイルの長さを取得（複数の方法を試す）
+    duration = None
+    
+    # 方法1: 元の音声ファイルから取得
+    possible_audio_paths = [
+        audio_path,  # 絶対パス
+        input_path.parent / audio_path.name,  # JSONと同じディレクトリ
+        Path.cwd() / audio_path.name,  # カレントディレクトリ
+    ]
+    
+    # file_pathが絶対パスの場合、その親ディレクトリも探索
+    if audio_path.is_absolute():
+        # ../module/sample_data/のようなパスも試す
+        possible_audio_paths.append(Path.cwd() / "module" / "sample_data" / audio_path.name)
+        possible_audio_paths.append(input_path.parent.parent / "module" / "sample_data" / audio_path.name)
+    
+    for test_path in possible_audio_paths:
+        if test_path.exists():
+            try:
+                print(f"音声ファイル発見: {test_path}")
+                info = sf.info(test_path)
+                duration = info.duration
+                print(f"  長さ: {duration:.2f}秒")
+                break
+            except Exception as e:
+                print(f"  読み込みエラー: {e}")
+    
+    # 方法2: ステムファイルから取得
+    if duration is None:
+        stems_dir = input_path.parent / "stems"
+        if stems_dir.exists():
+            stem_files = list(stems_dir.glob("*.wav"))
+            if stem_files:
+                try:
+                    print(f"ステムファイルから長さを取得: {stem_files[0]}")
+                    info = sf.info(stem_files[0])
+                    duration = info.duration
+                    print(f"  長さ: {duration:.2f}秒")
+                except Exception as e:
+                    print(f"  読み込みエラー: {e}")
+    
+    # 方法3: 既存のMP3ファイルから取得（再変換の場合）
+    if duration is None:
+        mp3_paths = [
+            output_dir / "mixdown" / f"{input_path.stem}.mp3",
+            output_dir / "demixed" / input_path.stem / "bass.mp3"
+        ]
+        for mp3_path in mp3_paths:
+            if mp3_path.exists():
+                try:
+                    print(f"既存のMP3から長さを取得: {mp3_path}")
+                    info = sf.info(mp3_path)
+                    duration = info.duration
+                    print(f"  長さ: {duration:.2f}秒")
+                    break
+                except Exception as e:
+                    print(f"  読み込みエラー: {e}")
+    
+    # 方法4: 最後の手段としてbeatsから推定
+    if duration is None:
+        print(f"警告: 音声ファイルが見つからないため、beatsから推定")
         if data.get('beats'):
-            duration = data['beats'][-1] + 2.0  # 最後のビートから2秒余裕を持たせる
+            # 最後のビートから音楽の終わりまでの余裕を考慮
+            # 通常、最後のビートから10-30秒程度の余裕がある
+            last_beat = data['beats'][-1]
+            # 音楽の構造を考慮して、より現実的な推定を行う
+            # 一般的に、最後のビートから全体の15-20%程度の余裕がある
+            estimated_ratio = 1.17  # 17%の余裕
+            duration = last_beat * estimated_ratio
+            print(f"  最後のビート: {last_beat:.2f}秒")
+            print(f"  推定duration: {duration:.2f}秒")
         else:
             duration = 240.0  # デフォルト値
+            print(f"  デフォルト値使用: {duration:.2f}秒")
     
     # 配列の長さを計算（100Hzサンプリングを想定）
     array_length = int(duration * 100)

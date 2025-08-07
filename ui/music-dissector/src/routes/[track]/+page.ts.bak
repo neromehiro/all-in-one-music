@@ -1,0 +1,16 @@
+import { browser } from '$app/environment'
+
+export async function load({ fetch, params }) {
+  if (!browser) return
+
+  // ローカルのデータファイルを読み込む
+  const url = `/data/${params.track}.json`
+  try {
+    const res = await fetch(url)
+    const data = await res.json()
+    return data
+  }
+  catch (error) {
+    console.log(error)
+  }
+}
