@@ -100,8 +100,8 @@ def compare_structure(obj1: Any, obj2: Any, path: str = "") -> List[Tuple[str, s
 
 def main():
     # ファイルパス
-    success_path = Path("success.json")
-    fail_path = Path("../ui/static/struct/0461_103additionalmemory.json")
+    success_path = Path("/Users/neromehiro/hiro folder/my_Works/programing/all-in-one-music/test/success.json")
+    fail_path = Path("/Users/neromehiro/hiro folder/my_Works/programing/all-in-one-music/ui/static/struct/0461_103additionalmemory.json")
     
     print("=" * 80)
     print("JSONファイル構造比較ツール")
