@@ -20,15 +20,28 @@ logger = logging.getLogger(__name__)
 class MusicAnalyzer:
     """音楽分析クラス"""
     
-    def __init__(self, output_dir: str = "analysis_results"):
+    def __init__(self, output_base_dir: str = "music_analysis"):
         """
         初期化
         
         Args:
-            output_dir: 分析結果の出力ディレクトリ
+            output_base_dir: 分析結果の出力ベースディレクトリ
         """
-        self.output_dir = Path(output_dir)
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.output_base_dir = Path(output_base_dir)
+        self.output_base_dir.mkdir(parents=True, exist_ok=True)
+        
+        # サブディレクトリの設定
+        self.results_dir = self.output_base_dir / "results"
+        self.visualizations_dir = self.output_base_dir / "visualizations"
+        self.sonifications_dir = self.output_base_dir / "sonifications"
+        self.demix_dir = self.output_base_dir / "demix"
+        self.spectrograms_dir = self.output_base_dir / "spectrograms"
+        self.cache_dir = self.output_base_dir / "cache"
+        
+        # ディレクトリ作成
+        for dir_path in [self.results_dir, self.visualizations_dir, self.sonifications_dir,
+                        self.demix_dir, self.spectrograms_dir, self.cache_dir]:
+            dir_path.mkdir(parents=True, exist_ok=True)
         
         # allin1ライブラリの遅延インポート
         self._allin1 = None
@@ -74,21 +87,14 @@ class MusicAnalyzer:
         logger.info(f"音楽分析開始: {audio_path.name}")
         
         try:
-            # 出力設定
-            viz_dir = self.output_dir / "visualizations" if include_visualization else None
-            sonif_dir = self.output_dir / "sonifications" if include_sonification else None
-            
-            if viz_dir:
-                viz_dir.mkdir(parents=True, exist_ok=True)
-            if sonif_dir:
-                sonif_dir.mkdir(parents=True, exist_ok=True)
-            
             # 分析実行
             result = self.allin1.analyze(
                 str(audio_path),
-                out_dir=str(self.output_dir),
-                visualize=str(viz_dir) if include_visualization else False,
-                sonify=str(sonif_dir) if include_sonification else False,
+                out_dir=str(self.results_dir),
+                visualize=str(self.visualizations_dir) if include_visualization else False,
+                sonify=str(self.sonifications_dir) if include_sonification else False,
+                demix_dir=str(self.demix_dir),
+                spec_dir=str(self.spectrograms_dir),
                 include_activations=True,
                 include_embeddings=True,
                 overwrite=overwrite,
@@ -238,21 +244,30 @@ class MusicAnalyzer:
 
 def main():
     """テスト実行"""
-    print("🎵 音楽分析モジュールテスト")
-    print("=" * 40)
+    print("🎵 音楽分析モジュールテスト（新ディレクトリ構造）")
+    print("=" * 50)
     
-    # 分析器の初期化
-    analyzer = MusicAnalyzer("test/analysis_results")
+    # 分析器の初期化（新しいディレクトリ構造）
+    analyzer = MusicAnalyzer("music_analysis")
+    
+    print(f"📂 出力ディレクトリ構造:")
+    print(f"  ベース: {analyzer.output_base_dir}")
+    print(f"  結果: {analyzer.results_dir}")
+    print(f"  可視化: {analyzer.visualizations_dir}")
+    print(f"  音響化: {analyzer.sonifications_dir}")
+    print(f"  音源分離: {analyzer.demix_dir}")
+    print(f"  スペクトログラム: {analyzer.spectrograms_dir}")
+    print(f"  キャッシュ: {analyzer.cache_dir}")
     
     # サンプルファイルの分析
     sample_file = "module/sample_data/1-03 Additional Memory.m4a"
     
     if Path(sample_file).exists():
-        print(f"📁 分析対象: {Path(sample_file).name}")
+        print(f"\n📁 分析対象: {Path(sample_file).name}")
         
         # 既存結果の読み込みテスト
-        json_file = "test/analysis_results/1-03 Additional Memory.json"
-        if Path(json_file).exists():
+        json_file = analyzer.results_dir / "1-03 Additional Memory.json"
+        if json_file.exists():
             result = analyzer.load_analysis_result(json_file)
             if result:
                 print("✅ 既存結果読み込み成功")
@@ -266,6 +281,24 @@ def main():
                 print("\n🎼 セクション統計:")
                 for label, stats in summary['section_stats'].items():
                     print(f"  {label}: {stats['count']}回, 平均{stats['average_duration']:.1f}秒")
+                
+                # ファイル存在確認
+                print(f"\n📂 生成ファイル確認:")
+                files_to_check = [
+                    ("JSON結果", json_file),
+                    ("アクティベーション", analyzer.results_dir / "1-03 Additional Memory.activ.npz"),
+                    ("エンベディング", analyzer.results_dir / "1-03 Additional Memory.embed.npy"),
+                    ("可視化PDF", analyzer.visualizations_dir / "1-03 Additional Memory.pdf"),
+                    ("スペクトログラム", analyzer.spectrograms_dir / "1-03 Additional Memory.npy"),
+                ]
+                
+                for desc, filepath in files_to_check:
+                    if filepath.exists():
+                        size_mb = filepath.stat().st_size / (1024 * 1024)
+                        print(f"  ✅ {desc}: {size_mb:.1f}MB")
+                    else:
+                        print(f"  ❌ {desc}: 見つかりません")
+                        
             else:
                 print("❌ 既存結果読み込み失敗")
         else:

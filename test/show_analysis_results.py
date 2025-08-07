@@ -19,8 +19,8 @@ def show_analysis_results():
     print("🎵 All-In-One音楽分析結果")
     print("=" * 60)
     
-    # JSONファイルの読み込み
-    json_file = Path("test/analysis_results/1-03 Additional Memory.json")
+    # JSONファイルの読み込み（新しいディレクトリ構造）
+    json_file = Path("music_analysis/results/1-03 Additional Memory.json")
     
     if not json_file.exists():
         print("❌ 分析結果ファイルが見つかりません")
@@ -77,15 +77,15 @@ def show_analysis_results():
     print("-" * 30)
     
     files_to_check = [
-        ("分析結果JSON", "test/analysis_results/1-03 Additional Memory.json"),
-        ("アクティベーション", "test/analysis_results/1-03 Additional Memory.activ.npz"),
-        ("エンベディング", "test/analysis_results/1-03 Additional Memory.embed.npy"),
-        ("可視化PDF", "test/visualizations/1-03 Additional Memory.pdf"),
-        ("音源分離(Bass)", "demix/htdemucs/1-03 Additional Memory/bass.wav"),
-        ("音源分離(Drums)", "demix/htdemucs/1-03 Additional Memory/drums.wav"),
-        ("音源分離(Other)", "demix/htdemucs/1-03 Additional Memory/other.wav"),
-        ("音源分離(Vocals)", "demix/htdemucs/1-03 Additional Memory/vocals.wav"),
-        ("スペクトログラム", "spec/1-03 Additional Memory.npy"),
+        ("分析結果JSON", "music_analysis/results/1-03 Additional Memory.json"),
+        ("アクティベーション", "music_analysis/results/1-03 Additional Memory.activ.npz"),
+        ("エンベディング", "music_analysis/results/1-03 Additional Memory.embed.npy"),
+        ("可視化PDF", "music_analysis/visualizations/1-03 Additional Memory.pdf"),
+        ("音源分離(Bass)", "music_analysis/demix/htdemucs/1-03 Additional Memory/bass.wav"),
+        ("音源分離(Drums)", "music_analysis/demix/htdemucs/1-03 Additional Memory/drums.wav"),
+        ("音源分離(Other)", "music_analysis/demix/htdemucs/1-03 Additional Memory/other.wav"),
+        ("音源分離(Vocals)", "music_analysis/demix/htdemucs/1-03 Additional Memory/vocals.wav"),
+        ("スペクトログラム", "music_analysis/spectrograms/1-03 Additional Memory.npy"),
     ]
     
     for desc, filepath in files_to_check:
@@ -97,7 +97,7 @@ def show_analysis_results():
             print(f"❌ {desc:<15}: ファイルなし")
     
     # アクティベーションデータの確認
-    activ_file = Path("test/analysis_results/1-03 Additional Memory.activ.npz")
+    activ_file = Path("music_analysis/results/1-03 Additional Memory.activ.npz")
     if activ_file.exists():
         print("\n🔬 アクティベーションデータ:")
         print("-" * 30)
@@ -107,7 +107,7 @@ def show_analysis_results():
             print(f"{key:<12}: {shape}")
     
     # エンベディングデータの確認
-    embed_file = Path("test/analysis_results/1-03 Additional Memory.embed.npy")
+    embed_file = Path("music_analysis/results/1-03 Additional Memory.embed.npy")
     if embed_file.exists():
         print("\n🧠 エンベディングデータ:")
         print("-" * 30)
