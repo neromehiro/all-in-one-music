@@ -1,0 +1,626 @@
+{
+  "_metadata": {
+    "description": "JSONファイルのサマリー（各配列は最初の10個まで）",
+    "max_items_per_array": 10,
+    "legend": {
+      "_type": "データ型",
+      "_total_count": "配列の総要素数",
+      "_sample_count": "サンプルとして取得した要素数",
+      "_samples": "サンプルデータ",
+      "_structure_sample": "配列要素が辞書の場合の構造サンプル"
+    }
+  },
+  "summary": {
+    "nav": {
+      "bass": {
+        "low": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "mid": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "high": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "drum": {
+        "low": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "mid": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "high": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        }
+      },
+      "other": {
+        "low": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "mid": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "high": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "vocal": {
+        "low": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "mid": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "high": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    "wav": {
+      "bass": {
+        "low": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "mid": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "high": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "drum": {
+        "low": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            1,
+            1,
+            1,
+            2,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "mid": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "high": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "other": {
+        "low": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "mid": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "high": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "vocal": {
+        "low": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "mid": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "high": {
+          "_type": "list",
+          "_total_count": 46806,
+          "_sample_count": 10,
+          "_samples": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    "duration": 468.06,
+    "scores": {
+      "segment": {
+        "Precision@0.5": 0.6875,
+        "Recall@0.5": 0.88,
+        "F-measure@0.5": 0.7719298245614036,
+        "Precision@3.0": 0.71875,
+        "Recall@3.0": 0.92,
+        "F-measure@3.0": 0.8070175438596492,
+        "Ref-to-est deviation": 0.05086000000000013,
+        "Est-to-ref deviation": 0.07144999999998447,
+        "Pairwise Precision": 0.5027143390698066,
+        "Pairwise Recall": 0.8877377860180272,
+        "Pairwise F-measure": 0.641918562046363,
+        "Rand Index": 0.5911454708526732,
+        "Adjusted Rand Index": 0.24276195222718097,
+        "Mutual Information": 0.37773407556420024,
+        "Adjusted Mutual Information": 0.32048440582623616,
+        "Normalized Mutual Information": 0.4421427181882304,
+        "NCE Over": 0.8634064098143711,
+        "NCE Under": 0.5915554856226497,
+        "NCE F-measure": 0.7020840884551633,
+        "V Precision": 0.6068242127565133,
+        "V Recall": 0.3221529054664105,
+        "V-measure": 0.420871901820012,
+        "Accuracy": 0.6341708327992138
+      },
+      "beat": {
+        "f1": 0.9959879638916751,
+        "precision": 0.9949899799599199,
+        "recall": 0.9969879518072289,
+        "cmlt": 0.9949899799599199,
+        "amlt": 0.9949899799599199
+      },
+      "downbeat": {
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "cmlt": 1.0,
+        "amlt": 1.0
+      }
+    },
+    "id": "0993_youandidanny",
+    "inferences": {
+      "beats": {
+        "_type": "list",
+        "_total_count": 998,
+        "_sample_count": 10,
+        "_samples": [
+          0.32,
+          0.78,
+          1.24,
+          1.7,
+          2.16,
+          2.62,
+          3.09,
+          3.55,
+          4.01,
+          4.47
+        ]
+      },
+      "downbeats": {
+        "_type": "list",
+        "_total_count": 249,
+        "_sample_count": 10,
+        "_samples": [
+          0.32,
+          2.16,
+          4.01,
+          5.86,
+          7.7,
+          9.55,
+          11.39,
+          13.24,
+          15.08,
+          16.93
+        ]
+      },
+      "segments": {
+        "_type": "list",
+        "_total_count": 32,
+        "_sample_count": 10,
+        "_samples": [
+          0.0,
+          0.32,
+          15.08,
+          29.85,
+          44.63,
+          59.39,
+          74.17,
+          88.94,
+          103.7,
+          118.47
+        ]
+      },
+      "labels": {
+        "_type": "list",
+        "_total_count": 31,
+        "_sample_count": 10,
+        "_samples": [
+          "start",
+          "intro",
+          "intro",
+          "inst",
+          "inst",
+          "inst",
+          "inst",
+          "inst",
+          "inst",
+          "inst"
+        ]
+      }
+    },
+    "truths": {
+      "beats": {
+        "_type": "list",
+        "_total_count": 996,
+        "_sample_count": 10,
+        "_samples": [
+          0.32,
+          0.79,
+          1.25,
+          1.71,
+          2.17,
+          2.63,
+          3.09,
+          3.56,
+          4.01,
+          4.48
+        ]
+      },
+      "downbeats": {
+        "_type": "list",
+        "_total_count": 249,
+        "_sample_count": 10,
+        "_samples": [
+          0.32,
+          2.17,
+          4.01,
+          5.86,
+          7.71,
+          9.55,
+          11.4,
+          13.25,
+          15.09,
+          16.94
+        ]
+      },
+      "segments": {
+        "_type": "list",
+        "_total_count": 25,
+        "_sample_count": 10,
+        "_samples": [
+          0.0,
+          0.31,
+          15.07,
+          29.82,
+          44.61,
+          59.36,
+          88.91,
+          103.64,
+          133.15,
+          155.32
+        ]
+      },
+      "labels": {
+        "_type": "list",
+        "_total_count": 24,
+        "_sample_count": 10,
+        "_samples": [
+          "start",
+          "intro",
+          "inst",
+          "inst",
+          "inst",
+          "inst",
+          "inst",
+          "inst",
+          "verse",
+          "inst"
+        ]
+      }
+    }
+  }
+}

@@ -1,9 +1,0 @@
-fastapi
-uvicorn
-mysql-connector-python
-playwright
-python-dateutil
-statistics
-bs4
-aiomysql
-python-dotenv
