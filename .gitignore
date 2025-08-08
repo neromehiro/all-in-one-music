@@ -67,6 +67,7 @@ docker-compose.override.yml
 *.mo
 
 *.mp3
+*.json
 *.m4a
 
 # 本番環境用秘密ファイル

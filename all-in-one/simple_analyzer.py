@@ -11,8 +11,13 @@ from pathlib import Path
 from typing import Optional, Dict, Union
 import logging
 
-# convert_to_music_dissectorをインポート
-sys.path.append(str(Path(__file__).parent.parent))
+# srcディレクトリをパスに追加
+sys.path.insert(0, str(Path(__file__).parent / "src"))
+
+# ローカルのallin1をインポート
+from allin1 import analyze
+
+# convert_to_music_dissectorをインポート（同じディレクトリから）
 from convert_to_music_dissector import convert_to_music_dissector
 
 # ログ設定
@@ -34,23 +39,6 @@ class SimpleAnalyzer:
         """
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        
-        # allin1ライブラリの遅延インポート
-        self._allin1 = None
-    
-    @property
-    def allin1(self):
-        """allin1ライブラリの遅延インポート"""
-        if self._allin1 is None:
-            try:
-                import allin1
-                self._allin1 = allin1
-                logger.info("✅ allin1ライブラリのインポート成功")
-            except ImportError as e:
-                logger.error(f"❌ allin1ライブラリのインポートに失敗: {e}")
-                logger.error("pip install allin1 を実行してください")
-                sys.exit(1)
-        return self._allin1
     
     def analyze(self, audio_path: Union[str, Path]) -> Optional[Dict]:
         """
@@ -80,7 +68,7 @@ class SimpleAnalyzer:
             temp_demix_dir = self.output_dir / "temp_demix"
             
             # All-In-Oneで分析実行
-            result = self.allin1.analyze(
+            result = analyze(
                 str(audio_path),
                 demix_dir=str(temp_demix_dir),
                 keep_byproducts=True,  # 音源分離ファイルを保持
@@ -195,81 +183,17 @@ class SimpleAnalyzer:
 
 def main():
     """メイン関数"""
-    import argparse
-    
-    parser = argparse.ArgumentParser(
-        description="音声ファイルを分析してJSONとStem音声を出力"
-    )
-    parser.add_argument(
-        "audio_files",
-        nargs="+",
-        help="分析する音声ファイル（複数指定可）"
-    )
-    parser.add_argument(
-        "-o", "--output",
-        default="output",
-        help="出力ディレクトリ（デフォルト: output）"
-    )
-    
-    args = parser.parse_args()
+    # 直接パスを指定
+    audio_file = "../module/sample_data/03 夕凪、某、花惑い.m4a"
+    output_dir = "output_test"
     
     # 分析実行
-    analyzer = SimpleAnalyzer(args.output)
+    analyzer = SimpleAnalyzer(output_dir)
+    result = analyzer.analyze(audio_file)
     
-    if len(args.audio_files) == 1:
-        # 単一ファイル
-        result = analyzer.analyze(args.audio_files[0])
-        if result:
-            logger.info(f"\n✅ 分析完了！")
-            logger.info(f"📁 出力先: {analyzer.output_dir}")
-            logger.info(f"📂 ディレクトリ構造:")
-            logger.info(f"  {analyzer.output_dir}/")
-            logger.info(f"  └── [曲名]/")
-            logger.info(f"      ├── [曲名].json")
-            logger.info(f"      ├── stems/")
-            logger.info(f"      │   ├── bass.wav")
-            logger.info(f"      │   ├── drums.wav")
-            logger.info(f"      │   ├── other.wav")
-            logger.info(f"      │   └── vocals.wav")
-            logger.info(f"      └── music-dissector/")
-            logger.info(f"          ├── data/")
-            logger.info(f"          │   ├── [曲名].json.gz")
-            logger.info(f"          │   └── [曲名].json")
-            logger.info(f"          ├── mixdown/")
-            logger.info(f"          │   └── [曲名].mp3")
-            logger.info(f"          └── demixed/")
-            logger.info(f"              └── [曲名]/")
-            logger.info(f"                  ├── bass.mp3")
-            logger.info(f"                  ├── drum.mp3")
-            logger.info(f"                  ├── other.mp3")
-            logger.info(f"                  └── vocal.mp3")
-    else:
-        # 複数ファイル
-        results = analyzer.batch_analyze(args.audio_files)
-        if results:
-            logger.info(f"\n✅ 全ての分析が完了！")
-            logger.info(f"📁 出力先: {analyzer.output_dir}")
-            logger.info(f"📂 ディレクトリ構造:")
-            logger.info(f"  {analyzer.output_dir}/")
-            logger.info(f"  └── [曲名]/")
-            logger.info(f"      ├── [曲名].json")
-            logger.info(f"      ├── stems/")
-            logger.info(f"      │   ├── bass.wav")
-            logger.info(f"      │   ├── drums.wav")
-            logger.info(f"      │   ├── other.wav")
-            logger.info(f"      │   └── vocals.wav")
-            logger.info(f"      └── music-dissector/")
-            logger.info(f"          ├── data/")
-            logger.info(f"          │   ├── [曲名].json.gz")
-            logger.info(f"          │   └── [曲名].json")
-            logger.info(f"          ├── mixdown/")
-            logger.info(f"          │   └── [曲名].mp3")
-            logger.info(f"          └── demixed/")
-            logger.info(f"              └── [曲名]/")
-            logger.info(f"                  ├── bass.mp3")
-            logger.info(f"                  ├── drum.mp3")
-            logger.info(f"                  ├── other.mp3")
-            logger.info(f"                  └── vocal.mp3")
+    if result:
+        print(f"\n✅ 分析完了！")
+        print(f"📁 出力先: {analyzer.output_dir}")
 
 
 if __name__ == "__main__":
