@@ -1,3 +1,5 @@
+cd ui/music-dissector && npm run dev
+
 # All-In-One Music Analysis
 
 🎵 All-In-One音楽構造解析ライブラリを統合した音楽分析システム

@@ -183,12 +183,15 @@ class SimpleAnalyzer:
 
 def main():
     """メイン関数"""
-    # 直接パスを指定
-    audio_file = "../module/sample_data/03 夕凪、某、花惑い.m4a"
-    output_dir = "output_test"
+    # スクリプトの場所を基準にした絶対パスを使用
+    audio_file = "/Users/neromehiro/hiro folder/my_Works/programing/all-in-one-music/module/sample_data/12 エイミー.m4a"
+    
+    # スクリプトの場所を基準にしたall-in-one/output_testディレクトリ
+    script_dir = Path(__file__).parent
+    output_dir = script_dir / "output_test"
     
     # 分析実行
-    analyzer = SimpleAnalyzer(output_dir)
+    analyzer = SimpleAnalyzer(str(output_dir))
     result = analyzer.analyze(audio_file)
     
     if result:
